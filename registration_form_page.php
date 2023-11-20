@@ -1,36 +1,43 @@
 <?php
 require_once('send.php');
 
-if (isset($_POST['submit'])) 
-{
-   $lastname = $_POST['lastname'];
-   $firstname = $_POST['firstname'];
-   $middlename = $_POST['middlename'];
-   $suffix  = $_POST['suffix'];
-   $placeofbirth = $_POST['placeofbirth'];
-   $dateofbirth = $_POST['dateofbirth'];
-   $sex = $_POST['sex'];
-   $house_street_subdivision = $_POST['house_street_subdivision'];
-   $barangay = $_POST['barangay'];
-   $city_municipality = $_POST['city_municipality'];
-   $province = $_POST['province'];
-   $zipcodes = $_POST['zipcodes'];
-   $house_street_subdivision1 = $_POST['house_street_subdivision1'];
-   $barangay1 = $_POST['barangay1'];
-   $city_municipality1 = $_POST['city_municipality1'];
-   $province1 = $_POST['province1'];
-   $zipcodes1 = $_POST['zipcodes1'];
-   $telephone_mobile_number = $_POST['telephone_mobile_number'];
-   $email_address = $_POST['email_address'];
-   $client_id_number = $_POST['client_id_number'];
+function insertData() {
+    global $conn;
 
-   $sql = "INSERT INTO bdo_info VALUES('$lastname', '$firstname', '$middlename', '$suffix', '$placeofbirth', '$dateofbirth', '$sex', '$house_street_subdivision', '$barangay', '$city_municipality', '$province', '$zipcodes', '$house_street_subdivision1', '$barangay1', '$city_municipality1', '$province1', '$zipcodes1', '$telephone_mobile_number', '$email_address', '$client_id_number')";
-   mysqli_query($conn, $sql);
-   echo
-   "
-   <script> alert('Data Inserted'); </script>
-   ";
+    if (isset($_POST['Yes'])) {
+
+        $data = [
+            'lastname', 'firstname', 'middlename', 'suffix', 'placeofbirth', 'dateofbirth',
+            'sex', 'house_street_subdivision', 'barangay', 'city_municipality', 'province',
+            'zipcodes', 'house_street_subdivision1', 'barangay1', 'city_municipality1',
+            'province1', 'zipcodes1', 'telephone_mobile_number', 'email_address', 'client_id_number'
+        ];
+
+
+        foreach ($data as $field) {
+            if (empty($_POST[$field])) {
+
+                echo "<script>alert('Please fill all the fields.'); window.history.back();</script>";
+                exit();
+            }
+        }
+
+
+        $values = array_map(function ($field) use ($conn) {
+            return mysqli_real_escape_string($conn, $_POST[$field]);
+        }, $data);
+
+        $sql = "INSERT INTO bdo_info VALUES ('" . implode("', '", $values) . "')";
+        if (mysqli_query($conn, $sql)) {
+            echo "<script>alert('Data Inserted');</script>";
+        } else {
+            echo "<script>alert('Error: " . mysqli_error($conn) . "');</script>";
+        }
+    }
 }
+
+
+insertData();
 ?>
 
 <!doctype html>
@@ -43,23 +50,7 @@ if (isset($_POST['submit']))
 <link href="Final_Project.css" rel="stylesheet">
 <link href="registration_form_page.css" rel="stylesheet">
 <script src="jquery-3.6.0.min.js"></script>
-<script>
-function submitForm2()
-{
-   var regexp;
-   var housestreetsubdivision_id = document.getElementById('housestreetsubdivision_id');
-   if (!(housestreetsubdivision_id.disabled || housestreetsubdivision_id.style.display === 'none' || housestreetsubdivision_id.style.visibility === 'hidden'))
-   {
-      if (housestreetsubdivision_id.value != document.getElementById('housestreetsubdivision1_id').value)
-      {
-         alert("Values must be identical");
-         housestreetsubdivision_id.focus();
-         return false;
-      }
-   }
-   return true;
-}
-</script>
+<script src="jquery-ui.min.js"></script>
 <script src="wwb17.min.js"></script>
 <script>
 $(document).ready(function()
@@ -68,42 +59,45 @@ $(document).ready(function()
    {
       if ($('#Checkbox1').is(':checked'))
       {
-         $('#housestreetsubdivision1_id').prop('disabled', true);
-         $('#barangay1_id').prop('disabled', true);
-         $('#citymunicipality1_id').prop('disabled', true);
-         $('#province1_id').prop('disabled', true);
-         $('#zipcodes1_id').prop('disabled', true);
-      }
-      if (!$('#Checkbox1').is(':checked'))
-      {
          $('#housestreetsubdivision1_id').prop('disabled', false);
          $('#barangay1_id').prop('disabled', false);
          $('#citymunicipality1_id').prop('disabled', false);
          $('#province1_id').prop('disabled', false);
          $('#zipcodes1_id').prop('disabled', false);
+
+        var housestreetsubdivision_id = $('#housestreetsubdivision_id').val();
+        $('#housestreetsubdivision1_id').val(housestreetsubdivision_id);
+
+        var barangay_id = $('#barangay_id').val();
+        $('#barangay1_id').val(barangay_id);
+
+        var citymunicipality_id = $('#citymunicipality_id').val();
+        $('#citymunicipality1_id').val(citymunicipality_id);
+
+        var province_id = $('#province_id').val();
+        $('#province1_id').val(province_id);
+
+        var zipcodes_id = $('#zipcodes_id').val();
+        $('#zipcodes1_id').val(zipcodes_id);
+      }
+      if (!$('#Checkbox1').is(':checked'))
+      {
+         $('#housestreetsubdivision1_id').prop('enabled', false);
+         $('#barangay1_id').prop('enabled', false);
+         $('#citymunicipality1_id').prop('enabled', false);
+         $('#province1_id').prop('enabled', false);
+         $('#zipcodes1_id').prop('enabled', false);
       }
    });
    $("#Checkbox1").trigger('change');
-   $("#Checkbox2").change(function()
-   {
-      if ($('#Checkbox2').is(':checked'))
-      {
-         ShowObject('submit_id', 1);
-      }
-      if (!$('#Checkbox2').is(':checked'))
-      {
-         ShowObject('submit_id', 0);
-      }
-   });
-   $("#Checkbox2").trigger('change');
 });
 </script>
 </head>
 <body>
-<div id="wb_Image1" style="position:absolute;left:0px;top:0px;width:1350px;height:720px;z-index:54;">
+<div id="wb_Image1" style="position:absolute;left:0px;top:0px;width:1350px;height:720px;z-index:59;">
 <img src="images/test.png" id="Image1" alt="" width="1350" height="759"></div>
-<div id="wb_Form1" style="position:absolute;left:58px;top:51px;width:1230px;height:650px;z-index:55;">
-<form name="Form2" method="post" action="" enctype="multipart/form-data" id="Form1" onsubmit="return submitForm2()">
+<div id="wb_Form1" style="position:absolute;left:58px;top:51px;width:1230px;height:650px;z-index:60;">
+<form name="Form2" method="post" action="" enctype="multipart/form-data" id="Form1">
 <div id="wb_Image2" style="position:absolute;left:790px;top:172px;width:0px;height:0px;z-index:0;">
 <img src="" id="Image2" alt=""></div>
 <div id="wb_Text1" style="position:absolute;left:16px;top:5px;width:599px;height:22px;z-index:1;">
@@ -426,11 +420,20 @@ $(document).ready(function()
 <div id="wb_Text33" style="position:absolute;left:720px;top:156px;width:42px;height:15px;text-align:center;z-index:50;">
 &nbsp;</div>
 <hr id="Line1" style="position:absolute;left:16px;top:37px;width:1200px;z-index:51;">
-<input type="submit" id="submit_id" name="submit" value="Submit" style="position:absolute;left:1112px;top:605px;width:96px;height:31px;z-index:52;">
+<input type="submit" id="submit_id" onclick="ShowObjectWithEffect('wb_Shape1', 1, 'fade', 500);ShowObjectWithEffect('wb_Text28', 1, 'fade', 500);ShowObjectWithEffect('wb_Text29', 1, 'fade', 500);ShowObjectWithEffect('yes', 1, 'fade', 500);ShowObjectWithEffect('Button2', 1, 'fade', 500);return false;" name="submit" value="Submit" style="position:absolute;left:1112px;top:605px;width:96px;height:31px;z-index:52;">
 <a id="Button1" href="./index.php" style="position:absolute;left:1004px;top:604px;width:96px;height:32px;z-index:53;">Cancel</a>
+<div id="wb_Shape1" style="position:absolute;left:391px;top:157px;width:400px;height:300px;visibility:hidden;z-index:54;">
+<img src="images/img0003.png" id="Shape1" alt="" width="400" height="300" style="width:400px;height:300px;"></div>
+<div id="wb_Text28" style="position:absolute;left:467px;top:215px;width:248px;height:30px;visibility:hidden;text-align:center;z-index:55;">
+<span style="color:#000000;font-family:Arial;font-size:27px;">Are you sure?</span></div>
+<div id="wb_Text29" style="position:absolute;left:466px;top:284px;width:250px;height:54px;visibility:hidden;text-align:center;z-index:56;">
+<span style="color:#000000;font-family:Arial;font-size:24px;">All the information you entered is correct?</span></div>
+<input type="submit" id="Button2" onclick="ShowObjectWithEffect('wb_Shape1', 0, 'fade', 500);ShowObjectWithEffect('wb_Text28', 0, 'fade', 500);ShowObjectWithEffect('wb_Text29', 0, 'fade', 500);ShowObjectWithEffect('Button2', 0, 'fade', 500);ShowObjectWithEffect('yes', 0, 'fade', 500);return false;" name="" value="Cancel" style="position:absolute;left:627px;top:379px;width:100px;height:40px;visibility:hidden;z-index:57;">
+<input type="submit" id="yes" name="Yes" value="Yes" style="position:absolute;left:456px;top:379px;width:100px;height:40px;visibility:hidden;z-index:58;">
 </form>
 </div>
-<div id="wb_IconFont1" style="position:absolute;left:1237px;top:48px;width:40px;height:40px;text-align:center;z-index:56;">
+<div id="wb_IconFont1" style="position:absolute;left:1237px;top:48px;width:40px;height:40px;text-align:center;z-index:61;">
 <a href="./index.php"><div id="IconFont1"><i class="fa fa-times"></i></div></a></div>
+
 </body>
 </html>

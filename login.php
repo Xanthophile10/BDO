@@ -9,8 +9,8 @@ if(isset($_POST['login'])) {
       </script>";
    } else {
       if($user == "admin" && $pass == "admin") {
-      echo "<script type='text/javascript'>alert('Empty Username or Password');
-      window.location='client_list.php';
+      echo "<script type='text/javascript'>alert('Success');
+      window.location='database_view.php';
       </script>";
          //echo '<script> alert("Login successful."); </script>';
          // Redirect to another PHP file on success
